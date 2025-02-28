@@ -1,0 +1,30 @@
+name: CI/CD Pipeline  
+
+on:  
+  push:  
+    branches: [ main, todo ]  
+
+jobs:  
+  build-and-deploy:  
+    runs-on: self-hosted  # This tells GitHub to use your local runner
+
+    steps:  
+      - name: Checkout Repository  
+        uses: actions/checkout@v3  
+
+      - name: Build and Push Docker Image  
+        run: |
+          docker build -t flask-todo-app:latest .
+          docker tag flask-todo-app:latest ${{ secrets.DOCKER_USERNAME }}/flask-todo-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/flask-todo-app:latest
+
+      - name: Start Minikube  
+        run: minikube start --driver=docker  
+
+      - name: Deploy to Minikube  
+        run: |
+          kubectl apply -f k8s/deployment.yaml  
+          kubectl apply -f k8s/service.yaml  
+
+      - name: Verify Deployment  
+        run: kubectl get pods  
