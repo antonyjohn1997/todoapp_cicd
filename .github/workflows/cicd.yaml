@@ -31,6 +31,8 @@ jobs:
           kubectl apply -f k8s/service.yaml  
 
       - name: Verify Deployment  
-        run: kubectl get pods  
+        run: kubectl get pods
+
+  
 
 
