@@ -2,11 +2,11 @@ name: CI/CD Pipeline
 
 on:  
   push:  
-    branches: [ main, todo ]  
+    branches: [ main, todo ]  # ✅ Trigger pipeline for both branches  
 
 jobs:  
   build-and-deploy:  
-    runs-on: self-hosted  # This tells GitHub to use your local runner
+    runs-on: self-hosted  # ✅ Use local GitHub Actions runner  
 
     steps:  
       - name: Checkout Repository  
@@ -21,10 +21,18 @@ jobs:
       - name: Start Minikube  
         run: minikube start --driver=docker  
 
+      - name: Set Minikube to Use Local Docker  
+        run: eval $(minikube -p minikube docker-env)
+
       - name: Deploy to Minikube  
         run: |
+          kubectl delete deployment flask-todo-app --ignore-not-found=true  # Delete old deployment  
           kubectl apply -f k8s/deployment.yaml  
           kubectl apply -f k8s/service.yaml  
 
       - name: Verify Deployment  
-        run: kubectl get pods  
+        run: kubectl get pods
+
+  
+
+
